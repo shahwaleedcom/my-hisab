@@ -23,6 +23,11 @@ const buttonStyle = (color) => ({
 });
 const buttonList = [
   {
+    label: <>Dashboard<br /><span style={{ fontSize: 14, fontWeight: 400 }}>ڈیش بورڈ</span></>,
+    color: "#26a69a",
+    screen: "dashboard"
+  },
+  {
     label: <>Add Transaction<br /><span style={{ fontSize: 14, fontWeight: 400 }}>اندراج رقم</span></>,
     color: "#43a047",
     screen: "add"
@@ -87,6 +92,45 @@ function MainMenu({ setScreen }) {
           >{btn.label}</button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function Dashboard({ transactions, setScreen }) {
+  const income = transactions
+    .filter(tx => tx.type === "income")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const expense = transactions
+    .filter(tx => tx.type === "expense")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const deposit = transactions
+    .filter(tx => tx.type === "deposit")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const balance = income - expense + deposit;
+  return (
+    <div style={{ padding: 24 }}>
+      <h3 style={{ textAlign: "center" }}>Dashboard</h3>
+      <table style={{ width: "100%", marginTop: 16 }}>
+        <tbody>
+          <tr>
+            <td><b>Total Income</b></td>
+            <td style={{ textAlign: "right" }}>{currency(income)}</td>
+          </tr>
+          <tr>
+            <td><b>Total Expense</b></td>
+            <td style={{ textAlign: "right" }}>{currency(expense)}</td>
+          </tr>
+          <tr>
+            <td><b>Total Deposits</b></td>
+            <td style={{ textAlign: "right" }}>{currency(deposit)}</td>
+          </tr>
+          <tr>
+            <td><b>Balance</b></td>
+            <td style={{ textAlign: "right" }}>{currency(balance)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button onClick={() => setScreen("main")} style={buttonStyle("#26a69a")}>← Main Menu</button>
     </div>
   );
 }
@@ -497,7 +541,7 @@ function ExcelStub({ data, setScreen }) {
 // --- MAIN APP ---
 function App() {
   const [data, setData] = useState(null);
-  const [screen, setScreen] = useState("main");
+  const [screen, setScreen] = useState("dashboard");
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
@@ -535,6 +579,7 @@ function App() {
   return (
     <div style={{ fontFamily: "sans-serif", maxWidth: 1200, margin: "auto", padding: 0 }}>
       {screen === "main" && <MainMenu setScreen={setScreen} />}
+      {screen === "dashboard" && <Dashboard transactions={transactions} setScreen={setScreen} />}
       {screen === "transactions" && <Transactions data={extendedData} setScreen={setScreen} />}
       {screen === "add" && <AddTransactionWizard data={data} addTx={addTx} setScreen={setScreen} />}
       {screen === "bank" && <BankDeposit data={data} addDeposit={addDeposit} setScreen={setScreen} />}
